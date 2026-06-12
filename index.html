@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" data-lens="build">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yogi Makadiya · builds software, breaks software</title>
+  <meta name="description" content="Software engineer and security engineer. M.Eng Cybersecurity (UMD). Ships production systems, hardens pipelines, publishes research. Two lenses, one person.">
+  <meta property="og:title" content="Yogi Makadiya · builds software, breaks software">
+  <meta property="og:description" content="One portfolio, two lenses. Trace the route from init to connect.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#070b13">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- thin scroll progress bar, shown when the rail is hidden (smaller screens) -->
+  <div id="progress" aria-hidden="true"></div>
+
+  <!-- the route HUD: a fixed pipeline tracker. passed stages stay marked -->
+  <div id="rail" aria-hidden="true">
+    <div class="rail-line"></div>
+    <div class="rail-fill"></div>
+    <div class="rail-packet"><span class="packet-core"></span></div>
+  </div>
+
+  <nav id="nav">
+    <a class="logo" href="#top" aria-label="home">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#0a0f1a"/>
+        <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="url(#logograd)" stroke-width="2" opacity=".6"/>
+        <defs><linearGradient id="logograd" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="var(--acc)"/><stop offset="1" stop-color="var(--acc2)"/>
+        </linearGradient></defs>
+        <text x="32" y="42" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="700" text-anchor="middle" fill="url(#logograd)">&lt;y/&gt;</text>
+      </svg>
+      <span class="logo-text">yogi<span class="logo-dim">.makadiya</span></span>
+    </a>
+
+    <div class="nav-links" id="navLinks">
+      <a href="#experience">work</a>
+      <a href="#projects">projects</a>
+      <a href="#skills">skills</a>
+      <a href="#research">research</a>
+      <a href="#education">education</a>
+      <a href="#leadership">leadership</a>
+      <a href="#console">api</a>
+      <a href="#contact">contact</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="lens-toggle" role="group" aria-label="viewing lens" title="Same person, two lenses. Press L to switch.">
+        <button class="lens-btn lens-build" data-set-lens="build" aria-pressed="true">build</button>
+        <button class="lens-btn lens-break" data-set-lens="break" aria-pressed="false">break</button>
+      </div>
+      <button id="burger" aria-label="menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main id="top">
+
+    <!-- ============ HOP 01 · INIT ============ -->
+    <header class="hero section" data-stage="init">
+      <div class="wrap">
+        <p class="status-chip"><span class="pulse"></span>open to software engineering and security roles</p>
+        <h1 class="hero-name">Yogi Makadiya</h1>
+        <h2 class="tagline" id="tagline">I build production systems and the pipelines that ship them.</h2>
+        <p class="hero-sub">
+          Software engineer with an M.Eng in Cybersecurity from the University of Maryland.
+          I have shipped production features at a startup, hardened CI/CD pipelines, run incident
+          response, and published research on IoT forensics. Most people pick a side between
+          building and securing. I never understood why you would.
+        </p>
+        <div class="hero-stats" id="heroStats">
+          <span><b>4</b> industry roles</span>
+          <span><b>2</b> publications <i>IEEE · Springer</i></span>
+          <span><b>3.93</b> GPA, M.Eng Cybersecurity</span>
+          <span><b>1</b> flag hidden on this site</span>
+        </div>
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="#projects">see the work</a>
+          <a class="btn btn-ghost" href="#console">open the console</a>
+          <div class="hero-icons" id="heroIcons"></div>
+        </div>
+        <div class="resume-slot" data-resume-slot></div>
+        <p class="scroll-hint mono">scroll to trace the route <span class="hint-arrow">↓</span></p>
+        <noscript>
+          <p class="noscript-note">JavaScript is off, so the interactive parts will sit this one out.
+          The important bits: yogimakadiya3 at gmail dot com · linkedin.com/in/yogibm · github.com/yogimy03</p>
+        </noscript>
+      </div>
+    </header>
+
+    <!-- ============ HOP 02 · BUILD ============ -->
+    <section id="experience" class="section" data-stage="build">
+      <div class="wrap">
+        <p class="kicker mono">hop 02 <span class="k-sep">·</span> build</p>
+        <h2 class="section-title">Where I have shipped</h2>
+        <p class="section-sub">Every role here is both jobs at once: features went out the door, and the door got a lock.
+        The bullets below follow your lens. <span class="inline-build mono">build</span> reads like a software resume,
+        <span class="inline-break mono">break</span> reads like a security one. Same jobs, both true.</p>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 03 · SHIP ============ -->
+    <section id="projects" class="section" data-stage="ship">
+      <div class="wrap">
+        <p class="kicker mono">hop 03 <span class="k-sep">·</span> ship</p>
+        <h2 class="section-title">Things I have built and broken</h2>
+        <p class="section-sub">
+          Each card answers the question that matters in 2026: why does this need a human who understands
+          the system, instead of a prompt? Every project includes a <span class="inline-build mono">build</span> line and a
+          <span class="inline-break mono">break</span> line, because every system is both.
+        </p>
+        <div class="filters mono" id="filters"></div>
+        <div class="grid" id="projectGrid"></div>
+        <div class="earlier" id="earlier"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 04 · LINK ============ -->
+    <section id="skills" class="section" data-stage="link">
+      <div class="wrap">
+        <p class="kicker mono">hop 04 <span class="k-sep">·</span> link</p>
+        <h2 class="section-title">Toolchain</h2>
+        <p class="section-sub">The ordering below follows your lens. Flip it and watch the priorities change. That is roughly what my brain does too.</p>
+        <div class="skill-groups" id="skillGroups"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 05 · SIGN ============ -->
+    <section id="research" class="section" data-stage="sign">
+      <div class="wrap">
+        <p class="kicker mono">hop 05 <span class="k-sep">·</span> sign</p>
+        <h2 class="section-title">Published research</h2>
+        <p class="section-sub">Peer reviewed and shipped to print. The slowest deploy pipeline I have ever worked with.</p>
+        <div class="pub-list" id="pubList"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 06 · TRAIN ============ -->
+    <section id="education" class="section" data-stage="train">
+      <div class="wrap">
+        <p class="kicker mono">hop 06 <span class="k-sep">·</span> train</p>
+        <h2 class="section-title">Education</h2>
+        <div class="edu-list" id="eduList"></div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 07 · VERIFY ============ -->
+    <section id="beyond" class="section" data-stage="verify">
+      <div class="wrap">
+        <p class="kicker mono">hop 07 <span class="k-sep">·</span> verify</p>
+        <h2 class="section-title">Credentials and leadership</h2>
+        <div class="beyond-cols">
+          <div class="beyond-col">
+            <h3 class="beyond-head mono">// credentials</h3>
+            <div id="credList"></div>
+          </div>
+          <div class="beyond-col" id="leadership">
+            <h3 class="beyond-head mono">// leadership</h3>
+            <div id="leadList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 08 · PROBE ============ -->
+    <section id="console" class="section" data-stage="probe">
+      <div class="wrap">
+        <p class="kicker mono">hop 08 <span class="k-sep">·</span> probe</p>
+        <h2 class="section-title">The career API</h2>
+        <p class="section-sub">
+          Everything on this page is also an endpoint. This sandbox runs entirely in your browser,
+          no network calls, no telemetry. Not every route is in the docs. You know what to do.
+        </p>
+        <div class="console-box">
+          <div class="console-head mono">
+            <span class="c-dot"></span><span class="c-dot"></span><span class="c-dot"></span>
+            <span class="console-title">yogi-api/3.0 · local sandbox</span>
+            <span class="console-status" id="consoleStatus">ready</span>
+          </div>
+          <form class="req-row" id="reqForm" autocomplete="off">
+            <select id="reqMethod" class="mono" aria-label="HTTP method">
+              <option>GET</option>
+              <option>POST</option>
+              <option>PUT</option>
+              <option>DELETE</option>
+            </select>
+            <input id="reqPath" class="mono" type="text" value="/v1/profile" spellcheck="false" aria-label="request path">
+            <button type="submit" class="btn btn-solid btn-send mono">send</button>
+          </form>
+          <div class="hint-chips mono" id="hintChips"></div>
+          <pre class="resp mono" id="respPane"><span class="resp-dim"># responses appear here. try the chips above, or go off-script.</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOP 09 · CONNECT ============ -->
+    <section id="contact" class="section" data-stage="connect">
+      <div class="wrap contact-wrap">
+        <p class="kicker mono">hop 09 <span class="k-sep">·</span> connect</p>
+        <h2 class="section-title">Destination reached</h2>
+        <p class="section-sub contact-sub">
+          If you are hiring for software engineering or security, my inbox is open.
+          I answer real emails faster than most APIs answer health checks.
+        </p>
+        <div class="contact-actions" id="contactActions"></div>
+        <div class="resume-slot resume-slot-center" data-resume-slot></div>
+        <p class="contact-alt mono">or, if you must: <button class="linklike mono" id="hireShortcut">POST /v1/hire</button></p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap foot-wrap">
+      <p class="mono foot-trace" id="footTrace">trace complete · 9 hops · 0 packets dropped</p>
+      <p class="mono foot-tips">press <kbd>L</kbd> to switch lens · press <kbd>/</kbd> for the console · share this page with <kbd>?lens=build</kbd> or <kbd>?lens=break</kbd></p>
+      <p class="foot-meta">© 2026 Yogi Makadiya</p>
+    </div>
+  </footer>
+
+  <!-- resume preview: opens from the resume artifact, previews the PDF inline -->
+  <div id="resumeModal" class="rm-overlay" hidden>
+    <div class="rm-box" role="dialog" aria-modal="true" aria-label="resume preview">
+      <div class="rm-head mono">
+        <span class="rm-file" id="rmFile">resume.pdf</span>
+        <span class="ra-tag" id="rmTag"></span>
+        <span class="rm-spacer"></span>
+        <button class="rm-switch mono" id="rmSwitch" hidden></button>
+        <a class="rm-dl mono" id="rmDownload" href="#" target="_blank" rel="noopener" download>download ↓</a>
+        <button class="rm-close" id="rmClose" aria-label="close preview">✕</button>
+      </div>
+      <div class="rm-body" id="rmBody"></div>
+      <p class="rm-note mono">preview not loading? the download button opens the file directly.</p>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
