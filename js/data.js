@@ -101,28 +101,28 @@ const DATA = {
   /* tags drive the filter chips. Valid: software, security, ai, cloud, data, research */
   projects: [
     {
-      id: "ai-review",
-      tile: "ai",
-      title: "AI Security Code Review Agent",
-      tags: ["ai", "security", "software"],
-      why: "Scanners match patterns. They do not understand intent. Broken authorization looks exactly like working code until someone reads it in context.",
-      desc: "An agent that reviews pull requests for the bugs scanners miss: IDOR, missing auth checks, business logic flaws. It posts inline comments with the exact line, an exploitation path, and a suggested fix. The hard part was never the model. It was the harness: chunking diffs to fit context limits, anchoring comments to the right line through the GitHub API, and forcing the agent to prove exploitability before it speaks. That last rule is what keeps false positives low enough to leave it running in CI.",
-      build: "FastAPI service, GitHub REST integration, Dockerized, runs inside Actions.",
-      secure: "Flags authorization and logic flaws that SAST rules cannot express.",
-      stack: ["Python", "FastAPI", "Claude API", "GitHub Actions", "Docker"],
+      id: "proofgate",
+      tile: "pg",
+      title: "ProofGate",
+      tags: ["ai", "security", "cloud", "software"],
+      why: "Everyone is bolting AI onto security scanners. Nobody trusts it to block a merge, because it will confidently cite a line of code that was never there.",
+      desc: "A CI/CD security gate that treats every finding, from a scanner or an AI, as a claim to prove before it is allowed to block a build. It pairs an AI reviewer for the bugs scanners miss, IDOR, missing auth, business logic, with SAST, dependency, container, IaC, and live cloud posture scans, all in one report. The hard part was trust: a mechanical check that every AI-cited line actually exists in the diff so it cannot hallucinate past the gate, a panel of skeptic checks that drops anything it cannot defend, and a ledger that records every keep and drop so the false-positive cut is a measured number instead of a promise. That is what lets it block a merge instead of leaving advisory comments nobody acts on.",
+      build: "One gate across six layers of scans, wired into GitHub Actions, GitLab, and Jenkins.",
+      secure: "Proves each finding line by line, so an AI can gate a merge without hallucinating.",
+      stack: ["Python", "FastAPI", "Claude API", "GitHub Actions", "Docker", "Semgrep", "Trivy", "Prowler"],
       links: { code: "", demo: "", writeup: "" }
     },
     {
-      id: "pipeline",
-      tile: "ci",
-      title: "DevSecOps Pipeline + Cloud Posture Scanner",
-      tags: ["security", "cloud", "software"],
-      why: "Most breaches are not zero-days. They are an open security group somebody forgot about in 2023.",
-      desc: "A hardened CI/CD pipeline that runs SAST, container, and dependency scans on every commit and blocks builds on critical findings. Paired with automated posture checks against CIS benchmarks for an AWS environment, catching public S3 buckets, open security groups, and over-permissive IAM roles before they ever reach production instead of after the incident review.",
-      build: "One pipeline, every commit, zero manual release steps.",
-      secure: "CIS benchmark checks with Prowler, image and dependency scanning with Trivy.",
-      stack: ["AWS", "Docker", "Kubernetes", "GitHub Actions", "Prowler", "Trivy"],
-      links: { code: "", writeup: "" }
+      id: "detection-lab",
+      tile: "de",
+      title: "Detection Engineering Lab",
+      tags: ["security", "cloud"],
+      why: "Every SIEM ships with hundreds of rules and a coverage map that is all green. Almost nobody checks whether the rules actually fire, and a lot of them never do.",
+      desc: "A detection lab that proves coverage instead of claiming it. It replays real attacker techniques across Windows, Linux, cloud, and network, runs Sigma rules over them, and only counts a technique as covered when its rule fires on the attack and stays quiet on normal activity. The interesting part is what it catches: a rule too broad to trust because it also alerts on a routine admin command, and rules that silently never fire, one because the command hides inside a shell wrapper and one because renaming a tool from procdump.exe walks right past it. It runs as detections-as-code, so a change that quietly breaks a proven rule fails the build like a broken test. The offline demo needs no install; the full lab ships the same events into a real Splunk on any OS.",
+      build: "Pure-Python engine, zero install, plus a real Splunk lab in Docker for any OS.",
+      secure: "Proven vs claimed ATT&CK coverage, and a CI gate that catches broken detections.",
+      stack: ["Sigma", "MITRE ATT&CK", "Splunk", "Atomic Red Team", "Zeek", "Python"],
+      links: { code: "", demo: "", writeup: "" }
     },
     {
       id: "iot-forensics",
