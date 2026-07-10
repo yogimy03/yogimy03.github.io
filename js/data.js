@@ -110,7 +110,7 @@ const DATA = {
       build: "One gate across six layers of scans, wired into GitHub Actions, GitLab, and Jenkins.",
       secure: "Proves each finding line by line, so an AI can gate a merge without hallucinating.",
       stack: ["Python", "FastAPI", "Claude API", "GitHub Actions", "Docker", "Semgrep", "Trivy", "Prowler"],
-      links: { code: "", demo: "", writeup: "" }
+      links: { code: "https://github.com/yogimy03/proofGate", demo: "", writeup: "" }
     },
     {
       id: "detection-lab",
@@ -122,7 +122,7 @@ const DATA = {
       build: "Pure-Python engine, zero install, plus a real Splunk lab in Docker for any OS.",
       secure: "Proven vs claimed ATT&CK coverage, and a CI gate that catches broken detections.",
       stack: ["Sigma", "MITRE ATT&CK", "Splunk", "Atomic Red Team", "Zeek", "Python"],
-      links: { code: "", demo: "", writeup: "" }
+      links: { code: "https://github.com/yogimy03/detection-engineering-lab", demo: "", writeup: "" }
     },
     {
       id: "iot-forensics",
@@ -134,7 +134,7 @@ const DATA = {
       build: "Evidence ingestion, hashing, and an audit trail anyone can replay.",
       secure: "Tamper-evident custody for evidence that has to survive a courtroom.",
       stack: ["Blockchain", "IoT", "Digital Forensics"],
-      links: { paper: "", code: "" }
+      links: { paper: "https://ieeexplore.ieee.org/document/10112358", code: "" }
     },
     {
       id: "residentease",
@@ -182,7 +182,7 @@ const DATA = {
       build: "Scikit-learn pipeline from raw public data to reproducible results.",
       secure: "Risk concentration mapping to target preventive resources.",
       stack: ["Python", "Scikit-learn", "Pandas", "Matplotlib"],
-      links: { code: "", writeup: "" }
+      links: { code: "https://github.com/yogimy03/juvenile-crime-analytics-india", writeup: "" }
     },
     {
       id: "scheduler",
@@ -194,7 +194,7 @@ const DATA = {
       build: "Frontend animation driven by a correct scheduling engine.",
       secure: "Deterministic, inspectable behavior: the visual never lies about state.",
       stack: ["GUI", "Algorithms", "Operating Systems"],
-      links: { code: "", demo: "" }
+      links: { code: "https://github.com/yogimy03/os-scheduler-studio", demo: "" }
     }
   ],
 
