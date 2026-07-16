@@ -296,19 +296,26 @@ const DATA = {
 
   credentials: [
     {
+      title: "CompTIA Security+ (SY0-701)",
+      line: "Vendor-neutral baseline for security operations: threat analysis, secure architecture, risk management, and incident response. The DoD 8140-approved credential most defensive roles screen for.",
+      // Paste the Credly badge public URL into "badge" and the CompTIA verification URL into "verify".
+      // Empty strings render no button, so both stay hidden until you fill them in.
+      links: { badge: "https://www.credly.com/badges/4e8280dc-dfa7-4c46-97a8-d186fa1069e8/public_url", verify: "https://cp.certmetrics.com/CompTIA/en/public/verify/credential/d4aa5ac277b4484986344e894bcb3b5c" }
+    },
+    {
+      title: "Google Cybersecurity Professional Certificate",
+      line: "Hands-on coursework across network protection, risk management, SIEM tooling, and incident handling.",
+      links: { badge: "https://www.credly.com/badges/62c1c297-4186-49e0-8b3a-22e069ddc585/public_url", certificate: "https://coursera.org/share/ecb058a1a2baf30ccf37aad937982b3a" }
+    },
+    {
       title: "ISC2 Graduate Scholarship, 2024",
       line: "Awarded by ISC2 for academic excellence in cybersecurity studies. Covered tuition and educational materials.",
-      links: { letter: "https://drive.google.com/file/d/1cMprJc2orjuFh5NrHJ27nD1mJ7oc-ZCq/view" }
+      links: { letter: "https://drive.google.com/file/d/1co3fIq18kqqUG_i2CHaG3jRbNx5RF3CY/view?usp=sharing", certificate: "https://drive.google.com/file/d/1cMprJc2orjuFh5NrHJ27nD1mJ7oc-ZCq/view" }
     },
     {
       title: "Phi Kappa Phi Honor Society, Inducted 2024",
       line: "Invitation-only induction during the M.Eng at Maryland. The oldest all-discipline honor society in the US, limited to the top 10% of graduate students.",
       links: { letter: "https://drive.google.com/file/d/1OiRdjNJ3yJEIYYU6tVHHm0e21DwEqXl-/view?usp=sharing" }
-    },
-    {
-      title: "Google Cybersecurity Professional Certificate",
-      line: "Hands-on coursework across network protection, risk management, SIEM tooling, and incident handling.",
-      links: { badge: "https://www.credly.com/badges/65677551-ce0f-4d75-81d0-135e81b0fc4d/public_url", certificate: "https://drive.google.com/file/d/1ZzCPOKyKwnTvxbzx6QHIq3a075QA-qBt/view?usp=sharing" }
     }
   ],
 

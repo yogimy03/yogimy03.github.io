@@ -35,7 +35,7 @@ const API = (() => {
       documented_routes: [
         "GET /v1/profile", "GET /v1/experience", "GET /v1/projects?tag={tag}",
         "GET /v1/skills", "GET /v1/publications", "GET /v1/education",
-        "GET /v1/leadership", "GET /v1/resume", "GET /v1/contact",
+        "GET /v1/credentials", "GET /v1/leadership", "GET /v1/resume", "GET /v1/contact",
         "GET /v1/status", "POST /v1/hire"
       ],
       undocumented_routes: "[redacted]",
@@ -100,6 +100,14 @@ const API = (() => {
       gpa: e.gpa,
       period: e.period
     })),
+
+    "/v1/credentials": () => DATA.credentials.map(c => {
+      const out = { title: c.title, detail: c.line };
+      const links = Object.entries(c.links || {})
+        .filter(([, url]) => url && url.trim() !== "");
+      if (links.length) out.links = Object.fromEntries(links);
+      return out;
+    }),
 
     "/v1/leadership": () => DATA.leadership.map(l => l.title),
 

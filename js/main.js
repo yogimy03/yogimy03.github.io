@@ -12,7 +12,7 @@
   const LINK_LABELS = {
     code: "view code", demo: "live demo", paper: "read paper", doi: "doi",
     writeup: "writeup", letter: "view letter", badge: "view badge",
-    certificate: "view certificate"
+    certificate: "view certificate", verify: "verify credential"
   };
   function linksHTML(links) {
     if (!links) return "";
