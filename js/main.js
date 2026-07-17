@@ -266,6 +266,9 @@
     else tag.textContent = TAGLINES[lens];
     orderSkills(lens);
     renderResume();
+    // let the ambient field recolor, and run a "recompiling" sweep
+    document.dispatchEvent(new CustomEvent("lenschange"));
+    if (animate && window.FX) window.FX.sweep();
   }
 
   $$(".lens-btn").forEach(b =>
@@ -456,13 +459,19 @@
   buildNodes();
   layoutRail();
 
-  /* ---------- reveal on scroll ---------- */
+  /* ---------- reveal on scroll (with a per-group stagger) ---------- */
   const io = new IntersectionObserver((entries) => {
     entries.forEach(en => {
       if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
     });
   }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
-  $$(".reveal").forEach(el => io.observe(el));
+  $$(".reveal").forEach(el => {
+    // cascade siblings in the same container by ~55ms each (capped)
+    const sibs = Array.from(el.parentElement.children).filter(c => c.classList.contains("reveal"));
+    const idx = Math.max(sibs.indexOf(el), 0);
+    el.style.setProperty("--rd", Math.min(idx, 6) * 55 + "ms");
+    io.observe(el);
+  });
 
   /* ---------- keyboard shortcuts ---------- */
   document.addEventListener("keydown", (e) => {
@@ -485,6 +494,317 @@
 
   /* ---------- console ---------- */
   API.init();
+
+  /* ============================================================
+     EFFECTS ENGINE — amplify / immersive / experimental layers.
+     All progressive: guarded by reduced-motion, pointer, and
+     screen-size checks, and paused when the tab is hidden.
+     ============================================================ */
+  (() => {
+    const finePointer = window.matchMedia("(pointer:fine)").matches;
+    const smallScreen = window.matchMedia("(max-width:760px)").matches;
+
+    /* ---- count-up hero stats ---- */
+    function countUp(el) {
+      const raw = el.textContent.trim();
+      if (reducedMotion || !/^\d+(\.\d+)?$/.test(raw)) return;
+      const target = parseFloat(raw);
+      const dec = (raw.split(".")[1] || "").length;
+      const dur = 1100;
+      let startT = null;
+      function step(t) {
+        if (startT === null) startT = t;
+        const p = Math.min((t - startT) / dur, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        el.textContent = (target * e).toFixed(dec);
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = raw;
+      }
+      el.textContent = (0).toFixed(dec);
+      requestAnimationFrame(step);
+    }
+    let statsRan = false;
+    function runStats() {
+      if (statsRan) return;
+      statsRan = true;
+      document.querySelectorAll("#heroStats b").forEach(countUp);
+    }
+    const statsEl = document.getElementById("heroStats");
+    if (statsEl) {
+      const so = new IntersectionObserver((ents) => {
+        ents.forEach(en => { if (en.isIntersecting) { runStats(); so.disconnect(); } });
+      }, { threshold: 0.4 });
+      so.observe(statsEl);
+    }
+
+    /* ---- magnetic buttons + icons ---- */
+    function magnetize(el, s) {
+      el.classList.add("magnetic");
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const mx = (e.clientX - (r.left + r.width / 2)) * s;
+        const my = (e.clientY - (r.top + r.height / 2)) * s;
+        el.style.transform = "translate(" + mx.toFixed(1) + "px," + my.toFixed(1) + "px)";
+      });
+      el.addEventListener("pointerleave", () => { el.style.transform = ""; });
+    }
+
+    /* ---- 3D tilt on project cards ---- */
+    function tilt(card) {
+      card.classList.add("tilt");
+      card.addEventListener("pointermove", (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform =
+          "perspective(900px) rotateX(" + (-py * 5).toFixed(2) + "deg) rotateY(" +
+          (px * 7).toFixed(2) + "deg) translateY(-4px)";
+      });
+      card.addEventListener("pointerleave", () => { card.style.transform = ""; });
+    }
+
+    /* ---- soft glow that follows the pointer ---- */
+    function initCursor() {
+      const cur = document.createElement("div");
+      cur.id = "fx-cursor";
+      document.body.appendChild(cur);
+      let raf = 0, x = 0, y = 0;
+      window.addEventListener("pointermove", (e) => {
+        x = e.clientX; y = e.clientY;
+        cur.style.opacity = "1";
+        if (!raf) raf = requestAnimationFrame(() => {
+          cur.style.transform = "translate(" + x + "px," + y + "px)";
+          raf = 0;
+        });
+      }, { passive: true });
+      window.addEventListener("blur", () => { cur.style.opacity = "0"; });
+    }
+
+    /* ---- ambient data field: falling glyphs + packet network ---- */
+    function initField() {
+      const canvas = document.createElement("canvas");
+      canvas.id = "fx-field";
+      document.body.insertBefore(canvas, document.body.firstChild);
+      const ctx = canvas.getContext("2d");
+      const GLYPHS = "01<>{}[]/#x9a3f7c".split("");
+      const mouse = { x: -9999, y: -9999 };
+      const STEP = 28, ROW = 20, TAIL = 7;
+      let W, H, DPR, cols, streams, nodes, packets = [], accRGB = "93,169,255";
+
+      function hexToRGB(h) {
+        h = (h || "").trim().replace("#", "");
+        if (h.length === 3) h = h.split("").map(c => c + c).join("");
+        if (h.length < 6) return accRGB;
+        const n = parseInt(h, 16);
+        return isNaN(n) ? accRGB : ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255);
+      }
+      function recolor() {
+        accRGB = hexToRGB(getComputedStyle(document.documentElement).getPropertyValue("--acc"));
+      }
+      recolor();
+      document.addEventListener("lenschange", recolor);
+
+      function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        cols = Math.ceil(W / STEP);
+        streams = new Array(cols).fill(0).map(() => {
+          const y = -Math.random() * H;
+          return {
+            y: y, sp: 0.9 + Math.random() * 1.2, lastRow: Math.floor(y / ROW),
+            glyphs: Array.from({ length: 2 + (Math.random() * (TAIL - 2) | 0) }, rnd)
+          };
+        });
+        const count = Math.min(56, Math.floor(W * H / 30000));
+        nodes = new Array(count).fill(0).map(() => ({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.16, vy: (Math.random() - 0.5) * 0.16
+        }));
+        packets = [];
+      }
+
+      const rnd = () => GLYPHS[(Math.random() * GLYPHS.length) | 0];
+
+      function frame() {
+        ctx.clearRect(0, 0, W, H);
+        // slow falling character streams: glyphs stay stable between row-steps
+        // so they read as code, not flickering dots. Head is brightest; the
+        // tail fades. A stream near the pointer lights up in the lens color.
+        ctx.font = "13px 'JetBrains Mono', monospace";
+        for (let i = 0; i < cols; i++) {
+          const s = streams[i];
+          s.y += s.sp;
+          const row = Math.floor(s.y / ROW);
+          if (row !== s.lastRow) {          // advanced a row: shift in a new head glyph
+            s.lastRow = row;
+            s.glyphs.unshift(rnd());
+            if (s.glyphs.length > TAIL) s.glyphs.pop();
+          }
+          const x = i * STEP + 5;
+          for (let k = 0; k < s.glyphs.length; k++) {
+            const gy = s.y - k * ROW;
+            if (gy < -ROW || gy > H + ROW) continue;
+            const fade = 1 - k / TAIL;
+            const near = Math.abs(x - mouse.x) < 110 && Math.abs(gy - mouse.y) < 150;
+            if (k === 0) {
+              ctx.fillStyle = near ? "rgba(" + accRGB + ",0.98)" : "rgba(200,214,234,0.6)";
+            } else {
+              const a = ((near ? 0.55 : 0.24) * fade).toFixed(3);
+              ctx.fillStyle = near ? "rgba(" + accRGB + "," + a + ")" : "rgba(140,160,188," + a + ")";
+            }
+            ctx.fillText(s.glyphs[k], x, gy);
+          }
+          if (s.y - TAIL * ROW > H) {        // whole stream cleared the bottom: respawn
+            s.y = -Math.random() * H * 0.6 - ROW;
+            s.sp = 0.9 + Math.random() * 1.2;
+            s.lastRow = Math.floor(s.y / ROW);
+            s.glyphs = Array.from({ length: 2 + (Math.random() * (TAIL - 2) | 0) }, rnd);
+          }
+        }
+        // network
+        for (const n of nodes) {
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > W) n.vx *= -1;
+          if (n.y < 0 || n.y > H) n.vy *= -1;
+        }
+        ctx.lineWidth = 1;
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const a = nodes[i], b = nodes[j];
+            const dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy;
+            if (d2 < 16900) {
+              const al = 0.12 * (1 - Math.sqrt(d2) / 130);
+              ctx.strokeStyle = "rgba(" + accRGB + "," + al.toFixed(3) + ")";
+              ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+            }
+          }
+        }
+        for (const n of nodes) {
+          const near = Math.abs(n.x - mouse.x) < 150 && Math.abs(n.y - mouse.y) < 150;
+          ctx.fillStyle = near ? "rgba(" + accRGB + ",0.9)" : "rgba(120,140,170,0.30)";
+          ctx.beginPath(); ctx.arc(n.x, n.y, near ? 2.3 : 1.4, 0, 6.2832); ctx.fill();
+        }
+        // traveling packets
+        if (packets.length < 7 && Math.random() > 0.93 && nodes.length > 2) {
+          const a = nodes[(Math.random() * nodes.length) | 0];
+          const b = nodes[(Math.random() * nodes.length) | 0];
+          if (a !== b) packets.push({ a, b, t: 0, sp: 0.007 + Math.random() * 0.011 });
+        }
+        ctx.shadowBlur = 8;
+        for (let k = packets.length - 1; k >= 0; k--) {
+          const p = packets[k]; p.t += p.sp;
+          if (p.t >= 1) { packets.splice(k, 1); continue; }
+          const x = p.a.x + (p.b.x - p.a.x) * p.t;
+          const y = p.a.y + (p.b.y - p.a.y) * p.t;
+          ctx.shadowColor = "rgba(" + accRGB + ",0.9)";
+          ctx.fillStyle = "rgba(" + accRGB + ",0.95)";
+          ctx.beginPath(); ctx.arc(x, y, 1.9, 0, 6.2832); ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+      }
+
+      let running = false, rafId = 0, rzTimer = 0;
+      function loop() { frame(); rafId = requestAnimationFrame(loop); }
+      function start() { if (!running) { running = true; loop(); } }
+      function stop() { running = false; cancelAnimationFrame(rafId); }
+
+      window.addEventListener("pointermove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+      window.addEventListener("resize", () => { clearTimeout(rzTimer); rzTimer = setTimeout(resize, 200); });
+      document.addEventListener("visibilitychange", () => { document.hidden ? stop() : start(); });
+
+      resize();
+      start();
+    }
+
+    /* ---- recompiling sweep on lens change (public hook) ---- */
+    const sweepEl = document.createElement("div");
+    sweepEl.id = "lens-sweep";
+    document.body.appendChild(sweepEl);
+    window.FX = {
+      sweep() {
+        if (reducedMotion) return;
+        sweepEl.classList.remove("go");
+        void sweepEl.offsetWidth;
+        sweepEl.classList.add("go");
+      }
+    };
+
+    /* ---- skippable route intro (once per tab session) ---- */
+    function routeIntro() {
+      if (reducedMotion) { runStats(); return; }
+      if (location.hash) return;
+      try { if (sessionStorage.getItem("introSeen")) return; } catch (e) { /* fine */ }
+      const stages = Array.from(document.querySelectorAll("[data-stage]")).map(s => s.dataset.stage);
+      const overlay = document.createElement("div");
+      overlay.id = "route-intro";
+      overlay.setAttribute("role", "status");
+      const lines = stages.map((s, i) =>
+        '<div class="ri-line"><span class="ri-hop">[' + String(i + 1).padStart(2, "0") +
+        ']</span><span class="ri-name">' + s + '</span><span class="ri-ok">ok</span></div>'
+      ).join("");
+      overlay.innerHTML =
+        '<div class="ri-box">' +
+          '<div class="ri-title"><span class="ri-dot"></span>trace --route yogi.makadiya</div>' +
+          lines +
+          '<div class="ri-final">route established · ' + stages.length + ' hops · 0 packets dropped</div>' +
+        "</div>" +
+        '<button class="ri-skip" type="button">skip ›</button>';
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+
+      const lineEls = Array.from(overlay.querySelectorAll(".ri-line"));
+      const finalEl = overlay.querySelector(".ri-final");
+      let idx = 0, done = false, timer = 0;
+      function reveal() {
+        if (idx < lineEls.length) {
+          lineEls[idx].classList.add("on");
+          idx++;
+          timer = setTimeout(reveal, 105);
+        } else {
+          finalEl.classList.add("on");
+          timer = setTimeout(finish, 640);
+        }
+      }
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        overlay.classList.add("done");
+        document.body.style.overflow = "";
+        try { sessionStorage.setItem("introSeen", "1"); } catch (e) { /* fine */ }
+        setTimeout(() => overlay.remove(), 700);
+        runStats();
+      }
+      overlay.querySelector(".ri-skip").addEventListener("click", finish);
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) finish(); });
+      const onKey = () => { finish(); document.removeEventListener("keydown", onKey); };
+      document.addEventListener("keydown", onKey);
+      setTimeout(reveal, 280);
+    }
+
+    /* ---- wire it all up ---- */
+    routeIntro();
+    if (!reducedMotion) {
+      const grain = document.createElement("div");
+      grain.id = "fx-grain";
+      grain.setAttribute("aria-hidden", "true");
+      document.body.appendChild(grain);
+    }
+    if (finePointer && !reducedMotion) {
+      document.querySelectorAll(".hero-actions .btn").forEach(b => magnetize(b, 0.25));
+      document.querySelectorAll(".hero-icons a").forEach(a => magnetize(a, 0.3));
+      document.querySelectorAll("#projectGrid .card").forEach(tilt);
+    }
+    if (finePointer && !reducedMotion && !smallScreen) {
+      initField();
+      initCursor();
+    }
+  })();
 
   /* ---------- a note for the curious ---------- */
   console.log(

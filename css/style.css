@@ -11,6 +11,12 @@
   --text: #d9e1ee;
   --muted: #8a96ab;
   --dim: #5d6878;
+
+  /* type system: Chakra Petch = squared HUD display, Space Grotesk = body,
+     JetBrains Mono = terminal/readouts. */
+  --font-display: "Chakra Petch", "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 
 html[data-lens="build"] {
@@ -29,7 +35,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.6;
   overflow-x: hidden;
 }
@@ -67,7 +73,7 @@ body::after {
 ::-webkit-scrollbar-thumb { background: #1c2433; border-radius: 6px; border: 2px solid var(--bg); }
 ::-webkit-scrollbar-thumb:hover { background: #2a3447; }
 
-.mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+.mono { font-family: var(--font-mono); }
 
 summary::-webkit-details-marker { display: none; }
 
@@ -348,9 +354,10 @@ html[data-lens="break"] .lens-btn.lens-break {
 .k-sep { color: var(--dim); }
 
 .section-title {
-  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.005em;
   margin-bottom: 14px;
 }
 
@@ -378,27 +385,7 @@ html[data-lens="break"] .lens-btn.lens-break {
   padding-top: 130px;
 }
 
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-  color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 7px 16px;
-  margin-bottom: 26px;
-  background: var(--panel-2);
-}
-.pulse {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--acc);
-  box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 60%, transparent);
-  animation: pulse 2s infinite;
-}
+/* pulse keyframe is used by the route-intro status dot (.ri-dot) */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--acc) 55%, transparent); }
   70% { box-shadow: 0 0 0 9px transparent; }
@@ -406,10 +393,11 @@ html[data-lens="break"] .lens-btn.lens-break {
 }
 
 .hero-name {
-  font-size: clamp(2.9rem, 7.5vw, 5.2rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.9rem, 7.5vw, 5.4rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.04;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
   margin-bottom: 14px;
   background: linear-gradient(120deg, #fff 40%, var(--acc) 70%, var(--acc2) 90%, #fff);
   background-size: 220% 100%;
@@ -453,6 +441,7 @@ html[data-lens="break"] .lens-btn.lens-break {
 .hex-readout[hidden] { display: none; }
 
 .tagline {
+  font-family: var(--font-display);
   font-size: clamp(1.15rem, 2.5vw, 1.65rem);
   font-weight: 500;
   color: var(--acc);
@@ -478,11 +467,12 @@ html[data-lens="break"] .lens-btn.lens-break {
   color: var(--muted);
 }
 .hero-stats b {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 19px;
+  font-family: var(--font-display);
+  font-size: 20px;
   color: var(--text);
   margin-right: 6px;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .hero-stats i { font-style: normal; color: var(--dim); margin-left: 5px; font-size: 11px; }
 
@@ -1164,6 +1154,171 @@ footer {
 .foot-meta { font-size: 12.5px; color: var(--dim); }
 .foot-meta a { color: var(--muted); }
 
+/* ============================================================
+   ENHANCEMENT LAYER
+   Display type is wired above. Below: brand logos, then the
+   amplify / immersive / experimental effect layers. Everything
+   here is progressive — it fails safe without JS, and folds down
+   under prefers-reduced-motion and on small screens.
+   ============================================================ */
+
+/* card headings pick up the HUD display face too */
+.t-role, .card h3, .pub h3, .edu h3, .b-item h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+/* ===================== amplify: background, grain, dividers ===================== */
+
+/* the lens glow drifts slowly, so the backdrop feels alive */
+body::after { animation: bgdrift 26s ease-in-out infinite alternate; }
+@keyframes bgdrift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(0, -2.2%, 0) scale(1.09); }
+}
+
+/* the animated data field (falling glyphs + packet network), drawn by JS */
+#fx-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* film grain over everything but nav/modal */
+#fx-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* glowing hairline divider above every section after the hero */
+main .section + .section { position: relative; }
+main .section + .section::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(1020px, 90%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--acc) 40%, transparent), transparent);
+  opacity: 0.55;
+}
+
+/* staggered reveal delay is set inline by JS via --rd */
+.reveal { transition-delay: var(--rd, 0ms); }
+
+/* magnetic + tilt elements want their transform driven smoothly by JS */
+.magnetic { transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; }
+.tilt { transform-style: preserve-3d; will-change: transform; }
+/* snappier transform response while tilting; keep the card's other transitions */
+.card.tilt { transition: transform 0.14s ease-out, border-color 0.25s ease, box-shadow 0.25s ease; }
+.card.tilt:hover { box-shadow: 0 22px 60px rgba(0,0,0,0.5); }
+
+/* ===================== immersive: cursor glow ===================== */
+
+/* soft glow that follows the pointer (desktop only), drawn by JS */
+#fx-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 460px; height: 460px;
+  margin: -230px 0 0 -230px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, color-mix(in srgb, var(--acc) 16%, transparent), transparent 62%);
+  transition: opacity 0.5s ease;
+  will-change: transform;
+}
+
+/* recompiling sweep on lens change */
+#lens-sweep {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+}
+#lens-sweep.go { animation: sweepfade 0.62s ease; }
+#lens-sweep::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--acc) 22%, transparent) 45%, color-mix(in srgb, var(--acc2) 30%, transparent) 55%, transparent);
+  transform: translateX(-130%);
+}
+#lens-sweep.go::before { animation: sweepbar 0.62s cubic-bezier(0.4, 0, 0.2, 1); }
+@keyframes sweepfade { 0%, 100% { opacity: 0; } 15%, 70% { opacity: 1; } }
+@keyframes sweepbar { from { transform: translateX(-130%); } to { transform: translateX(330%); } }
+
+/* ===================== experimental: route intro overlay ===================== */
+
+#route-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, #0a1120, #05070d 90%);
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#route-intro.done { opacity: 0; visibility: hidden; }
+.ri-box {
+  width: min(560px, 88vw);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--muted);
+  padding: 26px 28px;
+}
+.ri-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.ri-title .ri-dot {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--acc);
+  margin-right: 9px;
+  box-shadow: 0 0 12px var(--acc);
+  animation: pulse 1.6s infinite;
+}
+.ri-line { display: flex; gap: 10px; opacity: 0; transform: translateY(4px); }
+.ri-line.on { opacity: 1; transform: none; transition: opacity 0.25s ease, transform 0.25s ease; }
+.ri-hop { color: var(--acc); width: 3.5em; flex: none; }
+.ri-name { color: var(--muted); flex: 1; }
+.ri-ok { color: #34d399; }
+.ri-final { margin-top: 14px; color: var(--acc2); opacity: 0; transition: opacity 0.4s ease; }
+.ri-final.on { opacity: 1; }
+.ri-skip {
+  position: absolute;
+  bottom: 26px; right: 28px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--dim);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.ri-skip:hover { color: var(--acc); border-color: color-mix(in srgb, var(--acc) 45%, transparent); }
+
 /* ===================== motion preferences ===================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1174,4 +1329,8 @@ footer {
     transition-duration: 0.01ms !important;
   }
   .reveal { opacity: 1; transform: none; }
+  /* drop the ambient/experimental layers entirely */
+  #fx-field, #fx-grain, #fx-cursor, #lens-sweep { display: none !important; }
+  #route-intro { display: none !important; }
+  body::after { animation: none !important; }
 }

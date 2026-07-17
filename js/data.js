@@ -152,13 +152,13 @@ const DATA = {
       id: "healthcare",
       tile: "hc",
       title: "Healthcare Cloud Security Hardening",
-      tags: ["security", "cloud", "research"],
+      tags: ["security", "cloud"],
       why: "Hospitals cannot patch like startups. Securing healthcare systems means working around uptime constraints, not pretending they do not exist.",
-      desc: "Security hardening of a cloud-based healthcare platform: found and fixed vulnerabilities across the web, application, and database tiers, then tightened identity management, encryption, and network segmentation around patient data and telemedicine traffic. The research that came out of this work on securing the Internet of Healthcare Things was published by Springer at ICTCS 2022.",
+      desc: "A hands on security review and hardening of a cloud based healthcare platform. I worked one tier at a time, from the web layer through the application logic down to the database, found the vulnerabilities that were actually exploitable, and fixed them on systems that are never allowed to go down. From there I tightened everything that sits around patient data, including identity and access management, encryption in transit and at rest, and network segmentation so a problem in one service cannot spread to the rest. Live telemedicine traffic and medical records got the strongest controls, because in healthcare a weak spot is not just a compliance gap, it can put real people at risk. The goal was simple to say and hard to do: make the platform much harder to attack while keeping it available around the clock.",
       build: "Practical fixes sequenced around systems that cannot go down.",
-      secure: "IAM, encryption, and segmentation across all three tiers.",
-      stack: ["Cloud Security", "IAM", "Network Security"],
-      links: { paper: "", writeup: "" }
+      secure: "IAM, encryption, and segmentation across every tier of the stack.",
+      stack: ["Cloud Security", "IAM", "Network Security", "Encryption"],
+      links: { writeup: "" }
     },
     {
       id: "audit",

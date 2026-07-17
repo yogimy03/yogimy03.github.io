@@ -114,6 +114,21 @@ Sections are tagged with `data-stage` in `index.html`. Add or remove a section a
 the rail re-numbers its hops automatically. The rail shows on screens 1280px and
 wider; smaller screens get a slim gradient progress bar instead.
 
+### Motion and effects
+
+There is an ambient layer behind the content that stays out of the way: a slow
+"data field" of falling characters plus a drifting node-and-packet network, a
+pointer-following glow, magnetic buttons, a subtle 3D tilt on project cards,
+count-up hero stats, and a one-time-per-tab **route intro** that traces the nine
+hops before revealing the page (press any key or hit **skip** to dismiss). The
+lens switch runs a quick "recompiling" sweep.
+
+All of it is progressive: it needs JavaScript, pauses when the tab is hidden,
+turns off on small screens and coarse-pointer (touch) devices, and is fully
+disabled for anyone with `prefers-reduced-motion`. Type is **Chakra Petch**
+(display), **Space Grotesk** (body), and **JetBrains Mono** (terminal/readouts),
+all loaded from Google Fonts.
+
 ## File map
 
 ```
